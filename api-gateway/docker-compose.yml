@@ -1,0 +1,16 @@
+#services:
+#  gateway-db:
+#    image: postgres:16-alpine
+#    container_name: gateway-db
+#    environment:
+#      POSTGRES_DB: gateway-db
+#      POSTGRES_USER: gateway
+#      POSTGRES_PASSWORD: gateway
+#    ports:
+#      - "5993:5432"
+#    volumes:
+#      - gateway-db-data:/var/lib/postgresql/data
+#    restart: unless-stopped
+#
+#volumes:
+#  gateway-db-data:

@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      # OAuth2 Client configuration - for browser (session-based)
+      client:
+        registration:
+          api-gateway-client:
+            provider: auth-server
+            client-id: ${OAUTH2_CLIENT_ID:api-gateway}
+            client-secret: ${OAUTH2_CLIENT_SECRET:gateway-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+              - read
+              - write
+        provider:
+          auth-server:
+            authorization-uri: ${OAUTH2_ISSUER_URI:http://localhost:9000}/oauth2/authorize
+            token-uri: ${OAUTH2_ISSUER_URI:http://localhost:9000}/oauth2/token
+            jwk-set-uri: ${OAUTH2_ISSUER_URI:http://localhost:9000}/oauth2/jwks
+            user-info-uri: ${OAUTH2_ISSUER_URI:http://localhost:9000}/userinfo
+            user-name-attribute: sub
+
+# config for allow server name by gateway endpoint and lowercase name
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lower-case-service-id: true
+#          routes:
+#            - id: product-service
+#              uri: lb://PRODUCT-SERVICE
+#              predicates:
+#                - Path=/api/v1/products/**
+#              filters:
+#                - TokenRelay=
+
+# Application Configuration(nextjs, gateway, oauth2 server)
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
+  gateway:
+    url: ${GATEWAY_URL:http://localhost:8888}
+  auth-server:
+    url: ${OAUTH2_ISSUER_URI:http://localhost:9000}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+    prefer-ip-address: true
+
+server:
+  port: 8888
+
+
+# Actuator endpoints(next step)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.pesexpo.apigateway: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: TRACE
+
